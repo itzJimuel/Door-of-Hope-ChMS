@@ -1,0 +1,40 @@
+# Weekly encrypted database backup (free on GitHub Actions).
+# Needs two repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL      Supabase → Project Settings → Database → Connection string (URI, "Session pooler")
+#   BACKUP_PASSPHRASE    a long random passphrase — store a copy somewhere safe offline
+# Backups are kept as downloadable workflow artifacts for 90 days.
+name: Weekly database backup
+
+on:
+  schedule:
+    - cron: "0 18 * * 1"   # Tuesdays 2:00 AM Philippine time
+  workflow_dispatch: {}     # also allows "Run workflow" by hand
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          yes | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+          sudo apt-get install -y -qq postgresql-client-17
+
+      - name: Dump and encrypt
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          FILE="chms-$(date -u +%Y-%m-%d).sql.gz"
+          pg_dump "$DB_URL" --no-owner --no-privileges --schema=public | gzip > "$FILE"
+          openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:PASSPHRASE -in "$FILE" -out "$FILE.enc"
+          rm "$FILE"
+          ls -la
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chms-backup
+          path: "*.enc"
+          retention-days: 90

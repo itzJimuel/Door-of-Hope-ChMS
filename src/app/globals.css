@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eef5fd;
+  --color-brand-100: #d6e7fa;
+  --color-brand-600: #2a78d6;
+  --color-brand-700: #1f5fae;
+  --color-brand-900: #143e72;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f6f7f9;
+  color: #1c1d1f;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Shared building blocks */
+@utility card {
+  @apply rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5;
+}
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 font-medium transition
+         focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600
+         disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+}
+@utility btn-secondary {
+  @apply btn bg-white text-gray-800 ring-1 ring-gray-300 hover:bg-gray-50;
+}
+@utility btn-danger {
+  @apply btn bg-white text-red-700 ring-1 ring-red-300 hover:bg-red-50;
+}
+@utility input {
+  @apply block min-h-11 w-full rounded-xl border border-gray-300 bg-white px-3 text-base
+         focus:border-brand-600 focus:ring-2 focus:ring-brand-100 focus:outline-none;
+}
+@utility label {
+  @apply mb-1 block text-sm font-medium text-gray-700;
+}
+@utility page-title {
+  @apply text-2xl font-bold tracking-tight text-gray-900;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}
